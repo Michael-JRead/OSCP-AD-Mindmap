@@ -51,7 +51,7 @@ tags:
     - add SPN (target kerberoasting)
         - `targetedKerberoast.py -d <domain> -u <user> -p <pass>` [↗](https://github.com/ShutdownRepo/targetedKerberoast) ➡️ [[Crack Hash|Hash found (TGS)]]
     - add key credentials ➡️ [[ACLs & ACEs Permissions|shadow credentials]]
-    - login script ➡️ **Access**
+    - login script ➡️ [[Admin Access|Access]]
 - ForceChangePassword
     - `net user <user> <password> /domain` ➡️ [[Valid Credentials|User with clear text pass]]
 
@@ -89,7 +89,7 @@ tags:
 - Return the principals that can write to the GP-Link attribute on OUs
     - `Get-DomainOU | Get-DomainObjectAcl -ResolveGUIDs | ? { $_.ObjectAceType -eq "GP-Link" -and $_.ActiveDirectoryRights -match "WriteProperty" } | select ObjectDN, SecurityIdentifier | fl` [↗](https://github.com/PowerShellMafia/PowerSploit)
 - Generic Write on  GPO
-    - Abuse GPO ➡️ **ACCESS**
+    - Abuse GPO ➡️ [[Admin Access|ACCESS]]
 
 ## DNS Admin
 

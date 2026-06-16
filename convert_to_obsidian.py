@@ -116,9 +116,41 @@ FILE_TO_EMOJI = {
 }
 
 
+# Arrow labels that don't appear verbatim in conf.yml's `out:` table (so the
+# original mindmap draws them as plain default boxes). We resolve them to the
+# right destination box so the Obsidian graph stays fully connected.
+LABEL_ALIASES = {
+    "access": "admin",
+    "admin mssql": "admin",
+    "site db credentials": "creds",
+    "lat": "lat",
+    "search files": "lat",
+}
+
+
+def _norm_label(label):
+    """Lowercase, treat '/' as space, collapse whitespace — so capitalization
+    and spacing variants ('Pass The Certificate' vs 'Pass the certificate')
+    resolve to the same target."""
+    return re.sub(r"\s+", " ", label.replace("/", " ").lower()).strip()
+
+
 def load_conf():
     with open(os.path.join(SRC_DIR, "conf.yml"), "r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
+        conf = yaml.safe_load(f)
+    # build a normalized index of the out-table for fuzzy resolution
+    conf["_out_norm"] = {_norm_label(k): v for k, v in conf["out"].items()}
+    return conf
+
+
+def resolve_label(label, conf):
+    """label -> destination file stem (or None). Tries exact match, then a
+    case/spacing-insensitive match, then the manual alias table."""
+    color_id = conf["out"].get(label)
+    if color_id is None:
+        norm = _norm_label(label)
+        color_id = conf["_out_norm"].get(norm) or LABEL_ALIASES.get(norm)
+    return COLORID_TO_FILE.get(color_id) if color_id else None
 
 
 def parse_outs(raw, conf):
@@ -131,9 +163,7 @@ def parse_outs(raw, conf):
             label = label.strip()
             if not label:
                 continue
-            color_id = conf["out"].get(label)
-            target = COLORID_TO_FILE.get(color_id) if color_id else None
-            labels.append((label, target))
+            labels.append((label, resolve_label(label, conf)))
         if labels:
             stages.append(labels)
     return stages
@@ -386,6 +416,12 @@ def build_index(conf, all_edges):
         "https://mayfly277.github.io/posts/AD-mindmap-2k25/"
     )
     lines.append("")
+    lines.append(
+        "> [!tip] New here? Start with the playbook\n"
+        "> **[[Start Here — OSCP AD Methodology]]** — a linear, checkbox-driven workflow "
+        "that walks the attack path step by step and links into the boxes below."
+    )
+    lines.append("")
     lines.append("## Attack flow (grid layout)")
     lines.append("")
     lines.append(
@@ -442,6 +478,97 @@ def build_index(conf, all_edges):
     return "AD Mindmap", "\n".join(lines).rstrip() + "\n"
 
 
+def build_start_here():
+    """A practical, ordered AD attack workflow for exam/lab use, with task
+    checkboxes and links into the relevant mindmap boxes."""
+    L = FILE_TO_TITLE
+    lines = []
+    lines.append("---")
+    lines.append('title: "Start Here — OSCP AD Methodology"')
+    lines.append("tags:")
+    lines.append("  - ad-mindmap")
+    lines.append("  - methodology")
+    lines.append("  - oscp")
+    lines.append("---")
+    lines.append("")
+    lines.append("# 🎯 Start Here — OSCP AD Methodology")
+    lines.append("")
+    lines.append(
+        "> [!tip] How to use this vault\n"
+        "> This is the linear playbook. Work top-to-bottom; each step links into the\n"
+        f"> matching box of the [[AD Mindmap]] for the full command tree. Check items off\n"
+        "> as you go. Boxes deeper than the core flow (ADCS, delegation, ACLs, SCCM,\n"
+        "> trusts) are pivots you reach for when the path to DA isn't obvious."
+    )
+    lines.append("")
+
+    steps = [
+        ("1. Recon — no credentials", L["no_creds"], [
+            "Find the DC / domain name (DNS, SMB, LDAP, ports 88/389/445)",
+            "Anonymous / guest SMB + LDAP enumeration",
+            "Enumerate or brute users to build a username list",
+            "Check for quick wins on hosts (see below)",
+        ]),
+        ("2. Quick wins / known vulns", L["low_hanging"], [
+            "Scan for unauthenticated RCE (Zerologon, EternalBlue, web apps, etc.)",
+            "Also revisit once authenticated → " + f"[[{L['know_vuln_auth']}]]",
+        ]),
+        ("3. Get a username → get credentials", L["valid_user"], [
+            "Password spray the user list (watch lockout policy)",
+            "AS-REP roast accounts without preauth → crack the hash",
+            "Poison & relay on the wire → " + f"[[{L['mitm']}]]",
+            "Crack any captured hashes → " + f"[[{L['crack_hash']}]]",
+        ]),
+        ("4. Authenticated enumeration", L["authenticated"], [
+            "Run BloodHound (collect with the lowest-priv account you have)",
+            "Enumerate users, groups, shares, ACLs, delegation, GPOs",
+            "Kerberoast SPN accounts → crack → " + f"[[{L['crack_hash']}]]",
+            "Note ADCS / SCCM if present → " + f"[[{L['adcs']}]] / [[{L['sccm']}]]",
+        ]),
+        ("5. Move laterally", L["lat_move"], [
+            "Reuse creds / hashes / tickets (PtH, PtT, PtC) across hosts",
+            "Spot where your user is local admin → get a shell",
+        ]),
+        ("6. Escalate locally", L["low_access"], [
+            "Enumerate the host (winPEAS, PrivescCheck)",
+            "Abuse service accounts (SeImpersonate → Potato), UAC, exploits",
+        ]),
+        ("7. Loot credentials as admin", L["admin"], [
+            "Dump LSASS, SAM, LSA secrets, DPAPI",
+            "Feed new creds/hashes back into step 4–5",
+        ]),
+        ("8. Find the path to Domain Admin", None, [
+            "Abusable ACLs/ACEs (GenericAll, WriteDacl, DCSync) → " + f"[[{L['acl']}]]",
+            "Kerberos delegation (unconstrained/constrained/RBCD) → " + f"[[{L['delegation']}]]",
+            "ADCS certificate abuse (ESC1–ESC15) → " + f"[[{L['adcs']}]]",
+            "SCCM takeover → " + f"[[{L['sccm']}]]",
+        ]),
+        ("9. Domain Admin", L["dom_admin"], [
+            "Dump NTDS.dit (DCSync / secretsdump) for every hash",
+            "Grab DPAPI backup keys",
+        ]),
+        ("10. Cross trust boundaries / persist", L["trusts"], [
+            "Hop child→parent / across trusts → " + f"[[{L['trusts']}]]",
+            "Establish persistence if in scope → " + f"[[{L['persistence']}]]",
+        ]),
+    ]
+
+    for title, box, items in steps:
+        head = f"## {title}"
+        lines.append(head)
+        if box:
+            lines.append(f"➡️ Full tree: [[{box}]]")
+        lines.append("")
+        for it in items:
+            lines.append(f"- [ ] {it}")
+        lines.append("")
+
+    lines.append("---")
+    lines.append("See the full grid and pivot graph in [[AD Mindmap]].")
+    lines.append("")
+    return "Start Here — OSCP AD Methodology", "\n".join(lines).rstrip() + "\n"
+
+
 def build_readme():
     return (
         "# AD Mindmap — Obsidian vault\n\n"
@@ -450,7 +577,8 @@ def build_readme():
         "source (`excalimap/mindmap/ad/*.md`).\n\n"
         "## How to use\n\n"
         "1. Open this `obsidian/` folder as a vault in Obsidian (*Open folder as vault*).\n"
-        "2. Start at **[[AD Mindmap]]** — the map of content with the grid layout and pivot graph.\n"
+        "2. Start at **[[Start Here — OSCP AD Methodology]]** for the linear, checkbox-driven\n"
+        "   workflow, or **[[AD Mindmap]]** for the map of content (grid layout + pivot graph).\n"
         "3. Each note is one box of the mindmap. The **nested bullet lists are foldable trees** "
         "(fold/unfold with the gutter arrows) that mirror the branches of the original mindmap.\n"
         "4. `➡️` arrows are `[[wikilinks]]`: they point to the box a technique pivots into, so the\n"
@@ -488,6 +616,10 @@ def main():
     idx_title, idx_content = build_index(conf, all_edges)
     with open(os.path.join(OUT_DIR, f"{idx_title}.md"), "w", encoding="utf-8") as f:
         f.write(idx_content)
+
+    sh_title, sh_content = build_start_here()
+    with open(os.path.join(OUT_DIR, f"{sh_title}.md"), "w", encoding="utf-8") as f:
+        f.write(sh_content)
 
     with open(os.path.join(OUT_DIR, "README.md"), "w", encoding="utf-8") as f:
         f.write(build_readme())

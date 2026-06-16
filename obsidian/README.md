@@ -7,7 +7,8 @@ source (`excalimap/mindmap/ad/*.md`).
 ## How to use
 
 1. Open this `obsidian/` folder as a vault in Obsidian (*Open folder as vault*).
-2. Start at **[[AD Mindmap]]** — the map of content with the grid layout and pivot graph.
+2. Start at **[[Start Here — OSCP AD Methodology]]** for the linear, checkbox-driven
+   workflow, or **[[AD Mindmap]]** for the map of content (grid layout + pivot graph).
 3. Each note is one box of the mindmap. The **nested bullet lists are foldable trees** (fold/unfold with the gutter arrows) that mirror the branches of the original mindmap.
 4. `➡️` arrows are `[[wikilinks]]`: they point to the box a technique pivots into, so the
    **graph view** reconstructs the mindmap's connections.

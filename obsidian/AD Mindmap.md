@@ -10,6 +10,9 @@ tags:
 > [!abstract] Map of Content
 > Obsidian conversion of the [Orange Cyberdefense AD mindmap](https://orange-cyberdefense.github.io/ocd-mindmaps/). Each box below is its own note; the nested bullets inside each note are the foldable tree branches, and `➡️` arrows are `[[wikilinks]]` to the box the technique pivots into. Original write-up: https://mayfly277.github.io/posts/AD-mindmap-2k25/
 
+> [!tip] New here? Start with the playbook
+> **[[Start Here — OSCP AD Methodology]]** — a linear, checkbox-driven workflow that walks the attack path step by step and links into the boxes below.
+
 ## Attack flow (grid layout)
 
 The columns follow the engagement progression, left to right: **No creds → Valid user → Authenticated → Low access → Delegation → Admin → Domain admin**.
@@ -24,24 +27,24 @@ The columns follow the engagement progression, left to right: **No creds → Val
 
 ```mermaid
 flowchart LR
-    mitm["Man In The Middle"]
-    low_hanging["Quick Compromise"]
-    know_vuln_auth["Known Vulnerabilities (Authenticated)"]
-    acl["ACLs & ACEs Permissions"]
-    admin["Admin Access"]
-    crack_hash["Crack Hash"]
-    no_creds["No Credentials"]
-    lat_move["Lateral Movement"]
     persistence["Persistence"]
     trusts["Trusts"]
-    authenticated["Valid Credentials"]
-    adcs["ADCS"]
-    sccm["SCCM"]
-    authors["Authors"]
+    crack_hash["Crack Hash"]
+    no_creds["No Credentials"]
     dom_admin["Domain Admin"]
+    low_hanging["Quick Compromise"]
+    admin["Admin Access"]
+    authors["Authors"]
+    acl["ACLs & ACEs Permissions"]
     low_access["Low Access (Privilege Escalation)"]
+    know_vuln_auth["Known Vulnerabilities (Authenticated)"]
     valid_user["Valid User (No Password)"]
+    authenticated["Valid Credentials"]
     delegation["Kerberos Delegation"]
+    mitm["Man In The Middle"]
+    sccm["SCCM"]
+    lat_move["Lateral Movement"]
+    adcs["ADCS"]
     acl --> admin
     acl --> authenticated
     acl --> crack_hash
