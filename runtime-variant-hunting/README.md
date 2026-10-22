@@ -54,3 +54,32 @@ local, against processes we started.
 3. **Old classes persist in standard libraries.** NUL truncation at the C boundary was fixed piecemeal
    across stdlibs. Where one function rejects NUL and its sibling doesn't, that inconsistency is the
    finding.
+
+---
+
+## Round 2 — deep dive (2026-10-22): sibling hunt + backlog verification
+
+A follow-up round verified the 18 candidates the first round had left unverified and hunted **siblings**
+of each confirmed finding (the same root-cause pattern in a neighbouring API or a parallel runtime).
+
+**New confirmed vulnerabilities (aggregate; details embargoed):**
+
+| Vendor | New confirmed | Theme |
+|---|---|---|
+| Node.js | 1 (Medium) + 2 addenda | Connection-reuse keying that drops part of the caller's identity; plus two lower-severity addenda to round-1 items |
+| Deno | 4 (1 Moderate, 3 Low) | Permission-scope and request-routing gaps (siblings of Deno's own 2026 advisories and of round-1 items) |
+| Ruby | 2 (Low) | An incomplete fix of a historical CVE, and a certificate-identity matching gap |
+| OpenJDK | 2 (Low to Low–Medium) | A NUL-truncation sibling of a prior CVE, and an HTTP request-framing gap |
+| PHP | 1 (Low) | A certificate-identity matching gap in the TLS stream wrapper |
+
+**Grand total across both rounds: ~17 confirmed vulnerabilities** queued for coordinated disclosure,
+across Node.js, Deno, Bun, CPython, Ruby, OpenJDK and PHP. Each has a minimal local repro; none is a
+weaponized exploit.
+
+**What the deep dive reinforced:**
+- **A fixed CVE is a template, not a closed door.** Ruby's 2018 NUL fix, Java's 2023 command-NUL fix, and
+  Deno's own 2026 deny-precedence fix each turned out to cover only the exact API named in the advisory,
+  leaving siblings. The highest-yield move was reading each fix and testing the functions it *didn't* touch.
+- **"Check here, use there."** Every new confirmed bug is a place where one component validates a value and
+  a different component (a pooled connection, a renamed parent directory, the OS past a NUL byte) acts on a
+  different interpretation of it.
