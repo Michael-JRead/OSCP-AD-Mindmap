@@ -6,8 +6,10 @@ protocol. This round did that for six of our confirmed classes and added two new
 Nine hunters, each with an independent skeptic. Everything ran on 127.0.0.1 with locally generated keys and
 certificates: no IdP, CA, ACME or OAuth provider was contacted.
 
-> **Disclosure status:** 26 confirmed vulnerabilities (7 High, 6 Medium, 13 Low / Low-Medium / Low-Moderate), all **unpatched**. Details are embargoed and go to each project privately first, so affected
-> projects are not named here. A further 13 lower-ranked candidates are in a separate verification pass.
+> **Disclosure status:** 35 confirmed vulnerabilities (7 High, 8 Medium / Moderate, 20 Low / Low-Medium /
+> Low-Moderate), all **unpatched**. That is 26 from the main pass plus 9 of 13 lower-ranked candidates confirmed
+> in a second, independent verification pass. Details are embargoed and go to each project privately first, so
+> affected projects are not named here.
 
 ## Results by class (aggregate)
 
@@ -16,9 +18,9 @@ certificates: no IdP, CA, ACME or OAuth provider was contacted.
 | QUIC resource exhaustion with ACKs withheld: CID-retirement floods, stream credit returned before state is freed (our OpenSSL QUIC findings) | 8 QUIC stacks (4 Go/Rust, 4 C) | 4 (Medium / Low-Moderate, remote memory DoS) in 2 stacks |
 | ECH state, downgrade-sentinel and HRR handling (our OpenSSL ECH finding) | 4 ECH implementations | **0**: none has any of the three classes (one previously known client issue; two RFC 9849 conformance bugs) |
 | ACME server data treated as trusted local data (our ACME-client finding) | 8+ ACME clients and integrations | 3 (1 **High**: a trust-boundary error on the issuance path that allows a root-owned file write, shown only with an inert marker) |
-| CWE-338 in crypto libraries (our SM2-nonce finding) | ecosystem sweep, npm/PyPI/Go/Packagist | 7 (5 **High**): fixed or time-seeded ephemeral keys and nonces in SM2/ElGamal and JOSE libraries, allowing plaintext or private-key recovery |
-| `__Host-`/`__Secure-` cookie-prefix bypass via server-side name normalization (our round-4 finding) | 33 framework configurations across Python, JS, Ruby, Rust, Bun and Deno | 7 (Medium / Low-Medium), including one root cause in a shared parsing dependency |
-| Unbounded urlencoded form parsing (Tornado CVE-2026-82397 sibling) | same frameworks | 1 (**High** per precedent) |
+| CWE-338 in crypto libraries (our SM2-nonce finding) | ecosystem sweep, npm/PyPI/Go/Packagist | 9 (5 **High**): fixed or time-seeded ephemeral keys and nonces in SM2/ElGamal and JOSE libraries, allowing plaintext or private-key recovery |
+| `__Host-`/`__Secure-` cookie-prefix bypass via server-side name normalization (our round-4 finding) | 33 framework configurations across Python, JS, Ruby, Rust, Bun and Deno | 13 (Moderate / Medium / Low-Medium / Low), including one root cause in a shared parsing dependency |
+| Unbounded urlencoded form parsing (Tornado CVE-2026-82397 sibling) | same frameworks | 2 (1 **High** per precedent, 1 Moderate) |
 | Cross-request state after response-finishing exceptions (our app-server finding) | 14 Python/Ruby app-server configurations | 3 (Low / Low-Moderate) |
 | **NEW:** OAuth 2.0 / OIDC logic (PKCE ordering, redirect matching, assertion replay, ID-token validation) | 10 authorization servers and client libraries | 1 (Low); other strong hits were already public or documented |
 | **NEW:** SAML SP signature verification | 6 SP libraries, 17 configurations | **0** (see below) |
@@ -56,7 +58,7 @@ certificates: no IdP, CA, ACME or OAuth provider was contacted.
   bypass.
 
 ## Takeaways
-1. **Fix-sibling analysis keeps paying.** Six replayed classes produced 26 confirmed issues, several in
+1. **Fix-sibling analysis keeps paying.** Six replayed classes produced 34 confirmed issues, several in
    implementations whose recent advisories fixed only part of the class.
 2. **"Remote input becomes local trust" is the highest-severity pattern again.** The High ACME finding is the
    same trust-boundary error as last round's, in a different tool.
