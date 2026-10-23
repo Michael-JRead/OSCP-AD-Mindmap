@@ -12,8 +12,7 @@ Six hunters each had an independent skeptic, and High findings went to a second 
 or on loopback. Controllers were tested at the template level (no cluster), and no real service was contacted.
 
 > **Disclosure status:** 5 confirmed vulnerabilities (1 Moderate, 4 Low / Low-Medium), all **unpatched**. Details
-> are embargoed, so affected projects are not named here. The AI-inference track's candidates are still in
-> independent verification (round 10C) and are not counted yet.
+> are embargoed, so affected projects are not named here. Round 10C below adds 6 more (1 High).
 
 ## Results (aggregate)
 
@@ -24,7 +23,7 @@ or on loopback. Controllers were tested at the template level (no cluster), and 
 | Ingress / gateway controllers | 2 (Low-Medium) | a validator whose regex engine lets `$` match before a trailing newline, so a tenant route freezes config updates on a shared gateway; a validator regex anchored only at the start |
 | Go standard library | 1 (Low) | quadratic header construction from an unbounded client cookie jar |
 | Anti-malware engine | 0 | no memory-safety crash in bounded sanitizer fuzzing; parser differentials were filed as functional bugs, since the vendor's policy treats detection gaps as non-security |
-| AI inference servers | pending | 3 candidates in verification (round 10C) |
+| AI inference servers | see 10C | the 3 recovered candidates turned out to be already public or documented; see below |
 
 ## Publishable negatives
 - **ingress-nginx v1.15.1:** no new directive injection across the annotation validators and template sinks
@@ -45,3 +44,28 @@ or on loopback. Controllers were tested at the template level (no cluster), and 
 2. **Validator regex semantics matter.** `$` means end-of-string in some engines and end-of-line in others. A
    validator for config that a different tokenizer will parse must use `\z`, or explicitly reject CR/LF.
 3. **Incomplete fixes again.** Deserialization allow-lists added by a fix need a size/complexity budget too.
+
+## Round 10C addendum: recovered candidates and coverage-gap hunts
+
+This pass ran independent verification of the three AI-inference leads, whose hunter had failed to produce
+structured output. It also ran gap hunts on the ingress controllers, inference servers and Java auth/session
+libraries that earlier tracks did not reach. Each had a skeptic, plus a second judge for High findings.
+
+| Area | Confirmed | Class |
+|---|---|---|
+| Embedded TCP/IP + TLS stack | 1 (**High**, judge upheld) | the default RNG hook is libc `rand()`, and it feeds not only TCP/DNS values but **TLS randoms, ephemeral keys and signature nonces**. Only an opt-in build flag turns this into an error |
+| Gateway controller | 1 (Medium) | **incomplete fix**: the policy-validation sandbox lacks memory limits, so a tenant-submitted policy can exhaust control-plane memory |
+| Inference servers | 2 (1 Medium, 1 Low) | a per-user model ACL that checks one request field while the handler uses another ("check here, use there"); an isolation control that covers only one of several backends (**incomplete fix**) |
+| Java session / authorization-server libraries | 2 (1 Medium, 1 Low) | session-ID rotation undone by a concurrent stale request (session fixation); single-use artifacts that are not consumed atomically |
+
+**Honest negatives:**
+- All three recovered AI-inference leads were real behaviours but not new reports. One is already a public
+  (unmerged) PR, one is documented with an opt-out, and one was already known. That is why every candidate
+  gets an independent skeptic.
+- Six more ingress/gateway controllers showed no config-injection path: they use structured xDS or admin-API
+  translation and RE2-anchored validators, and gate snippets behind admin rights.
+
+**Takeaway:** "secure if the integrator configures it" defaults remain a major source of real weakness. In
+embedded stacks especially, the default must fail closed: refuse to build without a qualified RNG instead of
+silently falling back to `rand()`.
+
