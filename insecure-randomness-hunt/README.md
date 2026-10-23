@@ -33,7 +33,7 @@ and shipped default secret keys.
 
 ## How to protect your own deployments (no embargo needed)
 1. **Never deploy with a shipped secret.** Grep your compose/Helm/env files for `change`, `insecure`,
-   `secret`, `mysecret`, `example`, `CHANGEME` and replace every signing/encryption key with fresh random bytes
+   `secret`, `default`, `example`, `CHANGEME` and replace every signing/encryption key with fresh random bytes
    (`openssl rand -hex 32`). Rotating a signing key invalidates forged sessions.
 2. **Treat time-ordered IDs as public.** ULID, KSUID, xid, Snowflake and UUIDv1/v6/v7 are identifiers, not
    secrets. Tokens that grant access need ≥128 bits from a CSPRNG (`crypto.randomBytes`, `secrets.token_urlsafe`,
